@@ -20,6 +20,26 @@
 
   };
 
+
+  $(function() {
+      var cache = {};
+      $( "#neoid" ).autocomplete({
+          minLength: 2,
+          source: function( request, response ) {
+              var term = request.term;
+              if ( term in cache ) {
+                  response( cache[ term ] );
+                  return;
+              }
+
+              $.getJSON( "search", request, function( data, status, xhr ) {
+                  cache[ term ] = data;
+                  response( data );
+              });
+          }
+      });
+  });
+
   $(function() {
     function canvasSupported() {
       var canvas_compatible = false;
@@ -40,7 +60,7 @@
       if (vizid) {
         p.resourceId = vizid;
       } else {
-        p.resourceId = "0";
+        p.resourceId = "27321";
       }
 
       p.init(p.ajax("/js/pjs/physics.pjs")+p.ajax("/js/pjs/donut.pjs")+p.ajax("/js/pjs/resource.pjs")+p.ajax("/js/pjs/node.pjs")+p.ajax("/js/pjs/edge.pjs")+p.ajax("/js/pjs/graph.pjs")+p.ajax("/js/pjs/network.pjs"));

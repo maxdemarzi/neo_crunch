@@ -2,11 +2,11 @@
 %html
   %head
     %link(rel="stylesheet" href="/css/global.css")
-    %script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"}
-    %script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"}
+    %link(rel="stylesheet" href="http://code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css")
+    %script{:src => "http://code.jquery.com/jquery-1.8.2.js"}
+    %script{:src => "http://code.jquery.com/ui/1.9.0/jquery-ui.js"}
     %script{:src => "/js/ui.js"}
     %script{:src => "/js/processing.min.js"} 
-
     %title Neovigator
 
   %body
@@ -17,7 +17,7 @@
         %p Neography Browser
       %section#search
         %form{:action => "/", :method => "get"}
-          %label Node ID:
+          %label Search:
           %input#neoid{:type => "text", :value => "#{@neoid}", :name => "neoid"}
           %input#loadnode{:type => "submit", :value => "Load", :class => "button"}
       %br{:style => "clear: both;"}
@@ -42,8 +42,8 @@
           You can see the available nodes at
           %a{:href => "http://localhost:7474", :target => "_blank" } http://localhost:7474  
           , try loading
-          %a{:href => "/?neoid=1"} 
-            %b Node 1
+          %a{:href => "/?neoid=27321"} 
+            %b Node 27321
           to get started.    
         %h3 Quirks
         %p

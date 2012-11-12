@@ -149,9 +149,16 @@ def create_graph
   end        
   
 
-  puts "Creating Company Nodes"
+
   neo = Neography::Rest.new
-  
+
+  puts "Creating Indexes"  
+  neo.create_node_index("company_index", "fulltext", "lucene")    
+  neo.create_node_index("people_index", "fulltext", "lucene")    
+  neo.create_node_index("fo_index", "fulltext", "lucene")    
+  neo.create_node_index("tag_index", "fulltext", "lucene")    
+
+  puts "Creating Company Nodes"
   company_nodes = {}
   companies.each_slice(100) do |slice|
     commands = []
@@ -309,7 +316,7 @@ class NeoCrunch < Sinatra::Application
 
      relationships = [{"name" => "No Relationships","name" => "No Relationships","values" => [{"id" => "#{params[:id]}","name" => "No Relationships "}]}] if relationships.empty?
 
-    @node = {:details_html => "<h2>Neo ID: #{params[:id]}</h2>\n<p class='summary'>\n#{get_properties(me)}</p>\n",
+    @node = {:details_html => "<h2>#{me["name"]}</h2>\n<p class='summary'>\n#{get_properties(me)}</p>\n",
                 :data => {:attributes => relationships, 
                           :name => me["name"],
                           :id => params[:id]}
@@ -323,6 +330,18 @@ class NeoCrunch < Sinatra::Application
   get '/' do
     @neoid = params["neoid"]
     haml :index
+  end
+  
+  get '/search' do 
+    content_type :json
+    neo = Neography::Rest.new    
+
+    cypher = "START me=node:company_index({query}) 
+              RETURN ID(me), me.name
+              ORDER BY me.name
+              LIMIT 15"
+
+    neo.execute_query(cypher, {:query => "permalink:*#{params[:term]}*" })["data"].map{|x| { label: x[1], value: x[0]}}.to_json   
   end
   
   get '/best' do
