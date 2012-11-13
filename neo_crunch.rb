@@ -153,17 +153,14 @@ def create_graph
   neo = Neography::Rest.new
 
   puts "Creating Indexes"  
-  neo.create_node_index("company_index", "fulltext", "lucene")    
-  neo.create_node_index("people_index", "fulltext", "lucene")    
-  neo.create_node_index("fo_index", "fulltext", "lucene")    
-  neo.create_node_index("tag_index", "fulltext", "lucene")    
+  neo.create_node_index("node_index", "fulltext", "lucene")    
 
   puts "Creating Company Nodes"
   company_nodes = {}
   companies.each_slice(100) do |slice|
     commands = []
     slice.each_with_index do |company, index|
-      commands << [:create_unique_node, "company_index", "permalink", company[:permalink], company]
+      commands << [:create_unique_node, "node_index", "permalink", company[:permalink], company]
     end
   
     batch_results = neo.batch *commands
@@ -177,7 +174,7 @@ def create_graph
   people.each_slice(100) do |slice|
     commands = []
     slice.each_with_index do |person, index|
-      commands << [:create_unique_node, "people_index", "permalink", person[:permalink],person]
+      commands << [:create_unique_node, "node_index", "permalink", person[:permalink],person]
     end
   
     batch_results = neo.batch *commands
@@ -192,7 +189,7 @@ def create_graph
   fos.each_slice(100) do |slice|
     commands = []
     slice.each_with_index do |fo, index|
-      commands << [:create_unique_node, "fo_index", "permalink", fo[:permalink], fo]
+      commands << [:create_unique_node, "node_index", "permalink", fo[:permalink], fo]
     end
     
     batch_results = neo.batch *commands
@@ -207,7 +204,7 @@ def create_graph
   tags.each_slice(100) do |slice|
     commands = []
     slice.each_with_index do |tag, index|
-      commands << [:create_unique_node, "tag_index", "name", tag[:name], tag]
+      commands << [:create_unique_node, "node_index", "name", tag[:name], tag]
     end
   
     batch_results = neo.batch *commands
@@ -336,12 +333,12 @@ class NeoCrunch < Sinatra::Application
     content_type :json
     neo = Neography::Rest.new    
 
-    cypher = "START me=node:company_index({query}) 
+    cypher = "START me=node:node_index({query}) 
               RETURN ID(me), me.name
               ORDER BY me.name
               LIMIT 15"
 
-    neo.execute_query(cypher, {:query => "permalink:*#{params[:term]}*" })["data"].map{|x| { label: x[1], value: x[0]}}.to_json   
+    neo.execute_query(cypher, {:query => "permalink:*#{params[:term]}* OR name:*#{params[:term]}*" })["data"].map{|x| { label: x[1], value: x[0]}}.to_json   
   end
   
   get '/best' do
